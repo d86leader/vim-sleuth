@@ -16,7 +16,7 @@ function! s:guess(lines) abort
   let triplequote = 0
   let backtick = 0
   let xmlcomment = 0
-  let softtab = repeat(' ', 8)
+  let softtab = repeat(' ', &softtabstop)
 
   for line in a:lines
     if !len(line) || line =~# '^\s*$'
@@ -80,8 +80,9 @@ function! s:guess(lines) abort
       let heuristics.spaces += 1
     endif
     let indent = len(matchstr(substitute(line, '\t', softtab, 'g'), '^ *'))
-    if indent > 1 && (indent < 4 || indent % 2 == 0) &&
-          \ get(options, 'shiftwidth', 99) > indent
+    if indent > 1 && (indent < 4 || indent % 2 == 0)
+          \ && get(options, 'shiftwidth', 99) > indent
+          \ && match(line, "where") == -1
       let options.shiftwidth = indent
     endif
   endfor
@@ -91,7 +92,7 @@ function! s:guess(lines) abort
   elseif heuristics.soft != heuristics.hard
     let options.expandtab = heuristics.soft > heuristics.hard
     if heuristics.hard
-      let options.tabstop = 8
+      let options.tabstop = &tabstop
     endif
   endif
 
